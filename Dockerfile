@@ -3,6 +3,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY requirements.txt .
+RUN pip install --no-cache-dir --only-binary=:all: scipy==1.11.4
 RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
 
 COPY . .
