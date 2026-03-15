@@ -1,6 +1,7 @@
 import joblib
 import torch
-from src.step4_2_autoencoder_model import Autoencoder
+# ✅ NEW
+from backend.utils.step4_2_autoencoder_model import Autoencoder
 
 
 def load_models():
