@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Database — local only
+*.db
+
+# ML Models — too large for git, add back manually before deploy
+backend/models/*.pkl
+backend/models/*.pth
+
+# Training data & scripts — not needed for deployment
+data/
+src/
+
+# Flutter build
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/pubspec.lock
+
+# OS
+.DS_Store
+Thumbs.db
