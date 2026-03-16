@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import pandas as pd
 import torch
@@ -34,6 +35,13 @@ def run_inference(df):
 
     # ── Strip column spaces ────────────────────────────────────────────────
     df.columns = df.columns.str.strip()
+
+    # Cap rows to avoid OOM on Render free tier (512MB RAM)
+    MAX_ROWS = 20_000
+    if len(df) > MAX_ROWS:
+        print(f"  CSV has {len(df)} rows — capping to {MAX_ROWS} to stay within memory", flush=True)
+        df = df.iloc[:MAX_ROWS].copy()
+
     original_df = df.copy()
     print(f"  CSV shape: {df.shape}", flush=True)
 
@@ -48,6 +56,8 @@ def run_inference(df):
     benign_count = int((rf_preds == 0).sum())
     print(f"  Attacks: {attack_count}  Benign: {benign_count}", flush=True)
 
+    gc.collect()  # free memory after RF
+
     # ── Autoencoder anomaly scores ────────────────────────────────────────
     scaled = scaler.transform(X)
     tensor = torch.tensor(scaled, dtype=torch.float32)
@@ -58,6 +68,8 @@ def run_inference(df):
     threshold     = np.percentile(error, 95)
     anomaly_count = int((error > threshold).sum())
     print(f"  Anomalies: {anomaly_count}", flush=True)
+    del scaled, tensor, recon
+    gc.collect()
 
     # ── Attach predictions & scores to original df ────────────────────────
     original_df["_RF_Pred"]  = rf_preds
@@ -92,8 +104,9 @@ def run_inference(df):
 
     rng = np.random.RandomState(42)
 
-    n_atk = min(300, len(attack_idx))
-    n_ben = min(100, len(benign_idx))
+    # Reduced samples to stay within 512MB RAM — does NOT affect detection accuracy
+    n_atk = min(50, len(attack_idx))
+    n_ben = min(50, len(benign_idx))
 
     sel_atk = rng.choice(attack_idx, n_atk, replace=False) if n_atk > 0 else np.array([], dtype=int)
     sel_ben = rng.choice(benign_idx, n_ben, replace=False) if n_ben > 0 else np.array([], dtype=int)
