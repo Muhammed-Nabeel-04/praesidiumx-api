@@ -9,9 +9,6 @@ venv/
 # Database — local only
 *.db
 
-# ML Models — too large for git, add back manually before deploy
-backend/models/*.pkl
-backend/models/*.pth
 
 # Training data & scripts — not needed for deployment
 data/

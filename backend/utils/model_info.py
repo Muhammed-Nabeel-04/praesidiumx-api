@@ -118,10 +118,8 @@ def get_model_info() -> dict:
                 y = y.str.strip().map(lambda v: 0 if str(v).upper() == 'BENIGN' else 1)
             y = y.astype(int)
 
-            Xs     = scaler.transform(X)
-            # Restore feature names so RF doesn't predict all-BENIGN
-            Xs     = pd.DataFrame(Xs, columns=rf.feature_names_in_)
-            y_pred = rf.predict(Xs)
+            # RF was trained on RAW features — do NOT scale before predicting
+            y_pred = rf.predict(X)
 
             report = classification_report(y, y_pred, output_dict=True, zero_division=0)
             classes = sorted(y.unique())
