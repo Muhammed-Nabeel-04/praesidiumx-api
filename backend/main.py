@@ -1,5 +1,4 @@
 import io
-import os
 import uuid
 import threading
 import json
@@ -42,7 +41,7 @@ jobs:     Dict[str, Any] = {}
 jobs_lock = threading.Lock()
 
 # ─── Security & JWT Configuration ─────────────────────────────────────────────
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-local-key")
+SECRET_KEY = "super-secret-key-change-this"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080
 
@@ -84,16 +83,16 @@ def get_db():
 @app.on_event("startup")
 def create_default_admin():
     db = SessionLocal()
-    admin_email    = os.getenv("ADMIN_EMAIL",    "admin@gmail.com")
-    admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
     try:
-        if not db.query(User).filter(User.email == admin_email).first():
-            db.add(User(
-                email=admin_email,
-                password_hash=hash_password(admin_password)
-            ))
+        admin = db.query(User).filter(User.email == "admin@gmail.com").first()
+        if not admin:
+            new_admin = User(
+                email="admin@gmail.com",
+                password_hash=hash_password("admin123")
+            )
+            db.add(new_admin)
             db.commit()
-            print("✅ Admin created.")
+            print("✅ Default admin auto-created on startup.")
     finally:
         db.close()
 
@@ -157,9 +156,19 @@ def model_info(user_email: str = Depends(verify_token)):
     return get_model_info()
 # ─── Background inference runner (Saves to SQL) ───────────────────────────────
 def _run_job(job_id: str, file_bytes: bytes, filename: str, user_email: str):
+    import tempfile, os
+    tmp_path = None
     try:
-        df     = pd.read_csv(io.BytesIO(file_bytes))
+        # Write to temp file so we never hold full CSV in RAM as both bytes + DataFrame
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
+            tmp.write(file_bytes)
+            tmp_path = tmp.name
+        del file_bytes  # free the raw bytes immediately
+        import gc; gc.collect()
+
+        df     = pd.read_csv(tmp_path)
         result = run_inference(df)
+        del df; gc.collect()
         
         db = SessionLocal()
         try:
@@ -186,6 +195,10 @@ def _run_job(job_id: str, file_bytes: bytes, filename: str, user_email: str):
         with jobs_lock:
             jobs[job_id] = {"status": "error", "error": str(e)}
         print(f"  Job {job_id[:8]} FAILED: {e}", flush=True)
+    finally:
+        # Always clean up temp file
+        if tmp_path and os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
 # ─── POST /analyze — returns job_id immediately ───────────────────────────────
 @app.post("/analyze")
