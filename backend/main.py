@@ -156,19 +156,9 @@ def model_info(user_email: str = Depends(verify_token)):
     return get_model_info()
 # ─── Background inference runner (Saves to SQL) ───────────────────────────────
 def _run_job(job_id: str, file_bytes: bytes, filename: str, user_email: str):
-    import tempfile, os
-    tmp_path = None
     try:
-        # Write to temp file so we never hold full CSV in RAM as both bytes + DataFrame
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
-            tmp.write(file_bytes)
-            tmp_path = tmp.name
-        del file_bytes  # free the raw bytes immediately
-        import gc; gc.collect()
-
-        df     = pd.read_csv(tmp_path)
+        df     = pd.read_csv(io.BytesIO(file_bytes))
         result = run_inference(df)
-        del df; gc.collect()
         
         db = SessionLocal()
         try:
@@ -195,10 +185,6 @@ def _run_job(job_id: str, file_bytes: bytes, filename: str, user_email: str):
         with jobs_lock:
             jobs[job_id] = {"status": "error", "error": str(e)}
         print(f"  Job {job_id[:8]} FAILED: {e}", flush=True)
-    finally:
-        # Always clean up temp file
-        if tmp_path and os.path.exists(tmp_path):
-            os.remove(tmp_path)
 
 # ─── POST /analyze — returns job_id immediately ───────────────────────────────
 @app.post("/analyze")
