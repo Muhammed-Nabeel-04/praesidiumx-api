@@ -21,7 +21,15 @@ Built as a Final Year Project demonstrating the integration of:
 - **Real ML models** trained on CICIDS2017 benchmark dataset
 
 ---
+## 🖼️ Screenshots
 
+![](Screenshots/Screenshot(252).png)
+
+![](Screenshots/Screenshot(255).png)
+
+![](Screenshots/Screenshot(253).png)
+
+![](Screenshots/Screenshot(254).png)
 ## Features
 
 - 🔍 **Attack Detection** — Random Forest classifier identifies DDoS, Port Scan, Brute Force, and more
