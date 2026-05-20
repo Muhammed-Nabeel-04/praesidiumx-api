@@ -23,13 +23,17 @@ Built as a Final Year Project demonstrating the integration of:
 ---
 ## 🖼️ Screenshots
 
-![](Screenshots/Screenshot(252).png)
+### 1. Home Page
+![Home Page](Screenshots/Screenshot(252).png)
 
-![](Screenshots/Screenshot(255).png)
+### 2. User Interface
+![User Interface](Screenshots/Screenshot(255).png)
 
-![](Screenshots/Screenshot(253).png)
+### 3. Output Panel
+![Output Panel](Screenshots/Screenshot(253).png)
 
-![](Screenshots/Screenshot(254).png)
+### 4. Output Panel
+![Output](Screenshots/Screenshot(254).png)
 ## Features
 
 - 🔍 **Attack Detection** — Random Forest classifier identifies DDoS, Port Scan, Brute Force, and more
