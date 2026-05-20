@@ -27,13 +27,14 @@ Built as a Final Year Project demonstrating the integration of:
 ![Home Dashboard](Screenshots/Screenshot%20(252).png)
 
 ### 2. Threat Detection / Analysis
-![Threat Detection](Screenshots/Screenshot%20(253).png)
+![Report Output](Screenshots/Screenshot%20(255).png)
 
 ### 3. Monitoring / Results
-![Monitoring Results](Screenshots/Screenshot%20(254).png)
+![Threat Detection](Screenshots/Screenshot%20(253).png)
 
 ### 4. Report / Final Output
-![Report Output](Screenshots/Screenshot%20(255).png)
+![Monitoring Results](Screenshots/Screenshot%20(254).png)
+
 ## Features
 
 - 🔍 **Attack Detection** — Random Forest classifier identifies DDoS, Port Scan, Brute Force, and more
